@@ -5,16 +5,24 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <unistd.h>
+#include <vector>
+#include <thread>
+#include <memory>
+#include <mutex>
 
 class Server {
 private:
     int server_socket;
-    int port;
-    struct sockaddr_in server_address;
+   struct sockaddr_in server_address;
+    std::vector<std::thread> client_threads;
+    std::mutex mtx;
+
+    void handleClient(int client_socket);  // Function to handle client communication
 
 public:
-    Server(int port);
+    explicit Server(int port);
     ~Server();
+    
     void start();
 };
 
