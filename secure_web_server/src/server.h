@@ -2,28 +2,33 @@
 #define SERVER_H
 
 #include <iostream>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <unistd.h>
+#include <fstream>
+#include <string>
+#include <sstream>
+#include <memory>
 #include <vector>
 #include <thread>
-#include <memory>
 #include <mutex>
+#include <netinet/in.h>
+#include <unistd.h>
 
-class Server {
-private:
-    int server_socket;
-   struct sockaddr_in server_address;
-    std::vector<std::thread> client_threads;
-    std::mutex mtx;
-
-    void handleClient(int client_socket);  // Function to handle client communication
-
+class WebServer {
 public:
-    explicit Server(int port);
-    ~Server();
-    
+    WebServer(int port);
+    ~WebServer();
     void start();
-};
 
-#endif // SERVER_H
+private:
+    int server_fd;
+    struct sockaddr_in server_address;
+    std::mutex log_mutex;
+
+    void handleClient(int client_socket);
+    void sendResponse(int client_socket, const std::string& content, const std::string& content_type);
+    void send404(int client_socket);
+    std::string getFileContent(const std::string& file_path);
+    void handlePostRequest(int client_socket, const std::string& request);
+    
+};
+void logRequest(const std::string& request);
+#endif
