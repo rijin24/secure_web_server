@@ -5,12 +5,32 @@
 #include <cstring>
 #include <pthread.h>
 #include <sys/socket.h>
-#include "request_handler.h"  
+#include "request_handler.h"
 #include "log.h"  // Include the logging functionality
 #include "input_validation.h"  // Include the input validation header
-#include "utils.h" 
+#include "utils.h"
 
 Server::Server(int port) : port(port) {}  // Constructor definition
+
+// Function to sanitize the input to prevent XSS
+std::string sanitize_input(const std::string &input) {
+    std::string sanitized = input;
+    // Replace special HTML characters to prevent XSS
+    size_t pos;
+    while ((pos = sanitized.find("<")) != std::string::npos) {
+        sanitized.replace(pos, 1, "&lt;");
+    }
+    while ((pos = sanitized.find(">")) != std::string::npos) {
+        sanitized.replace(pos, 1, "&gt;");
+    }
+    while ((pos = sanitized.find("\"")) != std::string::npos) {
+        sanitized.replace(pos, 1, "&quot;");
+    }
+    while ((pos = sanitized.find("\'")) != std::string::npos) {
+        sanitized.replace(pos, 1, "&apos;");
+    }
+    return sanitized;
+}
 
 void *Server::handle_client(void *arg) {
     int client_socket = *((int *)arg);
@@ -53,6 +73,13 @@ std::string Server::handle_post_request(const std::string &request) {
     // Extract name and age from the POST data (simple example)
     std::string name = extract_value(data, "name");
     std::string age = extract_value(data, "age");
+
+    // Sanitize inputs before validation
+    name = InputValidation::sanitize_input(name);
+    age = InputValidation::sanitize_input(age);
+
+    // Log the sanitized data
+    std::cout << "Sanitized data: name=" << name << ", age=" << age << std::endl;
 
     // Validate the input data
     if (!InputValidation::validate_name(name)) {

@@ -636,3 +636,403 @@ Content-Type: text/html
 
 <html><body><h1>Invalid Name</h1><p>The name entered is invalid.</p></body></html>
 
+[2025-04-10 16:15:41] Request:
+GET / HTTP/1.1
+Host: localhost:8080
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/117.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+Connection: keep-alive
+Upgrade-Insecure-Requests: 1
+Sec-Fetch-Dest: document
+Sec-Fetch-Mode: navigate
+Sec-Fetch-Site: none
+Sec-Fetch-User: ?1
+
+
+
+[2025-04-10 16:15:41] Response:
+HTTP/1.1 200 OK
+Content-Type: text/html
+Content-Length: 186
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Secure Web Server</title>
+</head>
+<body>
+    <h1>Welcome to My Secure Web Server!</h1>
+    <p>This page is served by C++.</p>
+</body>
+</html>
+
+
+[2025-04-10 16:15:45] Request:
+GET /form.html HTTP/1.1
+Host: localhost:8080
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/117.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+Connection: keep-alive
+Upgrade-Insecure-Requests: 1
+Sec-Fetch-Dest: document
+Sec-Fetch-Mode: navigate
+Sec-Fetch-Site: none
+Sec-Fetch-User: ?1
+
+
+
+[2025-04-10 16:15:45] Response:
+HTTP/1.1 200 OK
+Content-Type: text/html
+Content-Length: 434
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Form Submission</title>
+</head>
+<body>
+    <h1>Submit Your Details</h1>
+    <form action="http://localhost:8080" method="POST">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name"><br><br>
+        <label for="age">Age:</label>
+        <input type="text" id="age" name="age"><br><br>
+        <input type="submit" value="Submit">
+    </form>
+</body>
+</html>
+
+
+[2025-04-10 16:15:52] Request:
+POST / HTTP/1.1
+Host: localhost:8080
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/117.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 24
+Origin: http://localhost:8080
+Connection: keep-alive
+Referer: http://localhost:8080/form.html
+Upgrade-Insecure-Requests: 1
+Sec-Fetch-Dest: document
+Sec-Fetch-Mode: navigate
+Sec-Fetch-Site: same-origin
+Sec-Fetch-User: ?1
+
+name=RijinAniyeri&age=26
+
+[2025-04-10 16:15:52] Response:
+HTTP/1.1 200 OK
+Content-Type: text/html
+
+<html><body><h1>Form Submitted Successfully!</h1><p>Data received: Name = RijinAniyeri, Age = 26</p></body></html>
+
+[2025-04-10 16:26:18] Request:
+GET / HTTP/1.1
+Host: localhost:8080
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/117.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+Connection: keep-alive
+Upgrade-Insecure-Requests: 1
+Sec-Fetch-Dest: document
+Sec-Fetch-Mode: navigate
+Sec-Fetch-Site: none
+Sec-Fetch-User: ?1
+
+
+
+[2025-04-10 16:26:18] Response:
+HTTP/1.1 200 OK
+Content-Type: text/html
+Content-Length: 186
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Secure Web Server</title>
+</head>
+<body>
+    <h1>Welcome to My Secure Web Server!</h1>
+    <p>This page is served by C++.</p>
+</body>
+</html>
+
+
+[2025-04-10 16:26:27] Request:
+
+
+[2025-04-10 16:26:27] Response:
+HTTP/1.1 200 OK
+Content-Type: text/plain
+Content-Length: 13
+
+404 Not Found
+
+[2025-04-10 16:26:27] Request:
+GET /form.html HTTP/1.1
+Host: localhost:8080
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/117.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+Connection: keep-alive
+Upgrade-Insecure-Requests: 1
+Sec-Fetch-Dest: document
+Sec-Fetch-Mode: navigate
+Sec-Fetch-Site: none
+Sec-Fetch-User: ?1
+
+
+
+[2025-04-10 16:26:27] Response:
+HTTP/1.1 200 OK
+Content-Type: text/html
+Content-Length: 434
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Form Submission</title>
+</head>
+<body>
+    <h1>Submit Your Details</h1>
+    <form action="http://localhost:8080" method="POST">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name"><br><br>
+        <label for="age">Age:</label>
+        <input type="text" id="age" name="age"><br><br>
+        <input type="submit" value="Submit">
+    </form>
+</body>
+</html>
+
+
+[2025-04-10 16:26:33] Request:
+POST / HTTP/1.1
+Host: localhost:8080
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/117.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 20
+Origin: http://localhost:8080
+Connection: keep-alive
+Referer: http://localhost:8080/form.html
+Upgrade-Insecure-Requests: 1
+Sec-Fetch-Dest: document
+Sec-Fetch-Mode: navigate
+Sec-Fetch-Site: same-origin
+Sec-Fetch-User: ?1
+
+name=fehjejhf&age=25
+
+[2025-04-10 16:26:33] Response:
+HTTP/1.1 200 OK
+Content-Type: text/html
+
+<html><body><h1>Form Submitted Successfully!</h1><p>Data received: Name = fehjejhf, Age = 25</p></body></html>
+
+[2025-04-10 16:28:25] Request:
+POST / HTTP/1.1
+Host: localhost:8080
+User-Agent: curl/8.0.1
+Accept: */*
+Content-Length: 41
+Content-Type: application/x-www-form-urlencoded
+
+name=<script>alert('XSS')</script>&age=25
+
+[2025-04-10 16:28:25] Response:
+HTTP/1.1 400 Bad Request
+Content-Type: text/html
+
+<html><body><h1>Invalid Name</h1><p>The name entered is invalid.</p></body></html>
+
+[2025-04-10 16:36:04] Request:
+POST /submit_form HTTP/1.1
+Host: localhost:8080
+User-Agent: curl/8.0.1
+Accept: */*
+Content-Length: 41
+Content-Type: application/x-www-form-urlencoded
+
+name=<script>alert('XSS')</script>&age=25
+
+[2025-04-10 16:36:04] Response:
+HTTP/1.1 400 Bad Request
+Content-Type: text/html
+
+<html><body><h1>Invalid Name</h1><p>The name entered is invalid.</p></body></html>
+
+[2025-04-10 16:39:30] Request:
+POST /submit_form HTTP/1.1
+Host: localhost:8080
+User-Agent: curl/8.0.1
+Accept: */*
+Content-Length: 41
+Content-Type: application/x-www-form-urlencoded
+
+name=<script>alert('XSS')</script>&age=25
+
+[2025-04-10 16:39:30] Response:
+HTTP/1.1 400 Bad Request
+Content-Type: text/html
+
+<html><body><h1>Invalid Name</h1><p>The name entered is invalid.</p></body></html>
+
+[2025-04-10 16:40:07] Request:
+POST / HTTP/1.1
+Host: localhost:8080
+User-Agent: curl/8.0.1
+Accept: */*
+Content-Length: 41
+Content-Type: application/x-www-form-urlencoded
+
+name=<script>alert('XSS')</script>&age=25
+
+[2025-04-10 16:40:07] Response:
+HTTP/1.1 400 Bad Request
+Content-Type: text/html
+
+<html><body><h1>Invalid Name</h1><p>The name entered is invalid.</p></body></html>
+
+[2025-04-10 16:43:25] Request:
+POST / HTTP/1.1
+Host: localhost:8080
+User-Agent: curl/8.0.1
+Accept: */*
+Content-Length: 41
+Content-Type: application/x-www-form-urlencoded
+
+name=<script>alert('XSS')</script>&age=25
+
+[2025-04-10 16:43:25] Response:
+HTTP/1.1 400 Bad Request
+Content-Type: text/html
+
+<html><body><h1>Invalid Name</h1><p>The name entered is invalid.</p></body></html>
+
+[2025-04-10 16:45:11] Request:
+POST / HTTP/1.1
+Host: localhost:8080
+User-Agent: curl/8.0.1
+Accept: */*
+Content-Length: 41
+Content-Type: application/x-www-form-urlencoded
+
+name=<script>alert('XSS')</script>&age=25
+
+[2025-04-10 16:45:11] Response:
+HTTP/1.1 400 Bad Request
+Content-Type: text/html
+
+<html><body><h1>Invalid Name</h1><p>The name entered is invalid.</p></body></html>
+
+[2025-04-10 16:45:47] Request:
+GET / HTTP/1.1
+Host: localhost:8080
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/117.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+Connection: keep-alive
+Upgrade-Insecure-Requests: 1
+Sec-Fetch-Dest: document
+Sec-Fetch-Mode: navigate
+Sec-Fetch-Site: none
+Sec-Fetch-User: ?1
+
+
+
+[2025-04-10 16:45:47] Response:
+HTTP/1.1 200 OK
+Content-Type: text/html
+Content-Length: 186
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Secure Web Server</title>
+</head>
+<body>
+    <h1>Welcome to My Secure Web Server!</h1>
+    <p>This page is served by C++.</p>
+</body>
+</html>
+
+
+[2025-04-10 16:45:51] Request:
+GET /form.html HTTP/1.1
+Host: localhost:8080
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/117.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+Connection: keep-alive
+Upgrade-Insecure-Requests: 1
+Sec-Fetch-Dest: document
+Sec-Fetch-Mode: navigate
+Sec-Fetch-Site: none
+Sec-Fetch-User: ?1
+
+
+
+[2025-04-10 16:45:51] Response:
+HTTP/1.1 200 OK
+Content-Type: text/html
+Content-Length: 434
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Form Submission</title>
+</head>
+<body>
+    <h1>Submit Your Details</h1>
+    <form action="http://localhost:8080" method="POST">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name"><br><br>
+        <label for="age">Age:</label>
+        <input type="text" id="age" name="age"><br><br>
+        <input type="submit" value="Submit">
+    </form>
+</body>
+</html>
+
+
+[2025-04-10 16:46:01] Request:
+POST / HTTP/1.1
+Host: localhost:8080
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/117.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 17
+Origin: http://localhost:8080
+Connection: keep-alive
+Referer: http://localhost:8080/form.html
+Upgrade-Insecure-Requests: 1
+Sec-Fetch-Dest: document
+Sec-Fetch-Mode: navigate
+Sec-Fetch-Site: same-origin
+Sec-Fetch-User: ?1
+
+name=wfwef&age=22
+
+[2025-04-10 16:46:02] Response:
+HTTP/1.1 200 OK
+Content-Type: text/html
+
+<html><body><h1>Form Submitted Successfully!</h1><p>Data received: Name = wfwef, Age = 22</p></body></html>
+

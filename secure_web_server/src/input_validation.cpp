@@ -3,14 +3,13 @@
 #include <iostream>
 
 bool InputValidation::validate_name(const std::string &name) {
-        // Max length for the name
     const int MAX_NAME_LENGTH = 50;
-    // Check if the name is not empty and contains only alphabets
-      if (name.empty() || name.length() > MAX_NAME_LENGTH) {
-            return false;  // Invalid if name is too long or empty
-        }
-    
-    std::regex name_pattern("^[A-Za-z ]+$");
+    if (name.empty() || name.length() > MAX_NAME_LENGTH) {
+        return false;  // Invalid if name is too long or empty
+    }
+
+    // Allow HTML entities like "&lt;" and "&gt;"
+    std::regex name_pattern("^[A-Za-z&;#]+$");  // Only letters and allowed HTML entities
     if (!std::regex_match(name, name_pattern)) {
         std::cerr << "Name can only contain letters and spaces." << std::endl;
         return false;
@@ -20,7 +19,6 @@ bool InputValidation::validate_name(const std::string &name) {
 }
 
 bool InputValidation::validate_age(const std::string &age) {
-    // Check if the age is a valid number
     if (age.empty()) {
         std::cerr << "Age cannot be empty." << std::endl;
         return false;
@@ -32,7 +30,6 @@ bool InputValidation::validate_age(const std::string &age) {
         return false;
     }
 
-    // Optional: You can add a range check for age, e.g., between 1 and 120
     int age_num = std::stoi(age);
     if (age_num <= 0 || age_num > 120) {
         std::cerr << "Age must be between 1 and 120." << std::endl;
@@ -40,4 +37,22 @@ bool InputValidation::validate_age(const std::string &age) {
     }
 
     return true;
+}
+
+std::string InputValidation::sanitize_input(const std::string &input) {
+    std::string sanitized = input;
+    size_t pos;
+    while ((pos = sanitized.find("<")) != std::string::npos) {
+        sanitized.replace(pos, 1, "&lt;");
+    }
+    while ((pos = sanitized.find(">")) != std::string::npos) {
+        sanitized.replace(pos, 1, "&gt;");
+    }
+    while ((pos = sanitized.find("\"")) != std::string::npos) {
+        sanitized.replace(pos, 1, "&quot;");
+    }
+    while ((pos = sanitized.find("\'")) != std::string::npos) {
+        sanitized.replace(pos, 1, "&apos;");
+    }
+    return sanitized;
 }
