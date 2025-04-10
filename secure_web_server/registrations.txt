@@ -1,3 +1,0 @@
-username=rijin&password=123456&email=rijin%40gmail.com
-username=joysy&password=123456&email=joysy%40gmail.com
-username=dhuhue1&password=cijf&email=shusduy%40gmail.com

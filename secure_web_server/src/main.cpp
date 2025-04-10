@@ -1,11 +1,7 @@
 #include "server.h"
 
 int main() {
-    try {
-        WebServer server(8080);
-        server.start();
-    } catch (const std::exception& e) {
-        std::cerr << "Error: " << e.what() << std::endl;
-    }
+    Server server(8080);  // Create a Server object with port 8080
+    server.start();       // Start the server
     return 0;
 }
