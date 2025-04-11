@@ -1,4 +1,4 @@
-#include "server.h"
+#include "../include/server.h"
 #include <iostream>
 #include <unistd.h>
 #include <arpa/inet.h>
@@ -6,7 +6,7 @@
 #include <pthread.h>
 #include <sys/socket.h>
 #include "request_handler.h"
-#include "log.h"  // Include the logging functionality
+#include "../include/log.h"  // Include the logging functionality
 
 // Constructor for Server
 Server::Server(int port) : port(port) {}

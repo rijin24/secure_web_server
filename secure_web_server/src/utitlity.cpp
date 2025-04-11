@@ -1,4 +1,5 @@
 #include "utility.h"
+
 #include <regex>
 
 namespace Utility {

@@ -1,4 +1,4 @@
-#include "server.h"
+#include "../include/server.h"
 
 int main() {
     Server server(8080);  // Create a Server object with port 8080

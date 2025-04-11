@@ -1,10 +1,10 @@
-#include "request_handler.h"
+#include "../include/request_handler.h"
 #include <fstream>
 #include <sstream>
 #include <iostream>
 #include <map>
 #include <string>
-#include "input_validation.h"  // Include input validation logic
+#include "../include/input_validation.h"  // Include input validation logic
 
 // Function to handle GET and POST requests
 std::string RequestHandler::handle_request(const std::string &request) {

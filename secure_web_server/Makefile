@@ -1,28 +1,25 @@
 CXX = g++
-CXXFLAGS = -std=c++17 -Wall -pthread
+CXXFLAGS = -std=c++17 -Wall -pthread -Iinclude  # Added -Iinclude for header files
 
-all: server
+SRC_DIR = src
+OBJ_DIR = obj
+INCLUDE_DIR = include
 
-server: main.o server.o request_handler.o log.o input_validation.o utils.o  # <-- Add utils.o here to ensure it's linked
-	$(CXX) $(CXXFLAGS) -o server main.o server.o request_handler.o log.o input_validation.o utils.o  # <-- Ensure utils.o is linked
+SRCS = $(wildcard $(SRC_DIR)/*.cpp)
+OBJS = $(patsubst $(SRC_DIR)/%.cpp, $(OBJ_DIR)/%.o, $(SRCS))
 
-main.o: src/main.cpp
-	$(CXX) $(CXXFLAGS) -c src/main.cpp
+TARGET = server
 
-server.o: src/server.cpp src/server.h
-	$(CXX) $(CXXFLAGS) -c src/server.cpp
+all: $(TARGET)
 
-request_handler.o: src/request_handler.cpp src/request_handler.h
-	$(CXX) $(CXXFLAGS) -c src/request_handler.cpp
+$(TARGET): $(OBJS)
+	$(CXX) $(CXXFLAGS) -o $@ $(OBJS)
 
-input_validation.o: src/input_validation.cpp src/input_validation.h
-	$(CXX) $(CXXFLAGS) -c src/input_validation.cpp
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp | $(OBJ_DIR)
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-log.o: src/log.cpp src/log.h
-	$(CXX) $(CXXFLAGS) -c src/log.cpp
-
-utils.o: src/utils.cpp src/utils.h  # <-- Add this line to compile utils.cpp
-	$(CXX) $(CXXFLAGS) -c src/utils.cpp  # <-- Compile utils.cpp
+$(OBJ_DIR):
+	mkdir -p $(OBJ_DIR)
 
 clean:
-	rm -f *.o server
+	rm -rf $(OBJ_DIR) $(TARGET)
