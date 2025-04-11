@@ -1,10 +1,9 @@
 #include "../include/request_handler.h"
-#include <fstream>
 #include <sstream>
 #include <iostream>
-#include <map>
 #include <string>
 #include "../include/input_validation.h"  // Include input validation logic
+#include "../include/file_handler.h"  // Include FileHandler class
 
 // Function to handle GET and POST requests
 std::string RequestHandler::handle_request(const std::string &request) {
@@ -13,17 +12,20 @@ std::string RequestHandler::handle_request(const std::string &request) {
 
     request_stream >> method >> path >> http_version;
 
+    // Handle POST request separately
     if (method == "POST") {
         return handle_post_request(request);  // Handle POST request
     }
 
     // Default to handling GET requests
     if (path == "/") {
-        path = "/index.html";
+        path = "/index.html";  // Default to the index.html file if root is requested
     }
 
+    // Use FileHandler for reading the content
+    FileHandler file_handler;
     std::string file_path = "static" + path;
-    std::string content = get_file_content(file_path);
+    std::string content = file_handler.get_file_content(file_path);
 
     if (content.empty()) {
         return generate_http_response("404 Not Found", "text/plain");
@@ -61,8 +63,9 @@ std::string RequestHandler::handle_post_request(const std::string &request) {
                "<html><body><h1>Invalid Age</h1><p>The age entered is invalid.</p></body></html>";
     }
 
-    // Save name and age to a file
-    save_to_file(name, age);
+    // Use FileHandler to save the data
+    FileHandler file_handler;
+    file_handler.save_to_file(name, age);
 
     // If validation passed, process and respond
     std::string response = "HTTP/1.1 200 OK\r\n";
@@ -72,17 +75,6 @@ std::string RequestHandler::handle_post_request(const std::string &request) {
     response += "<p>Data received: Name = " + name + ", Age = " + age + "</p></body></html>";
 
     return response;
-}
-
-// Save name and age to a file
-void RequestHandler::save_to_file(const std::string &name, const std::string &age) {
-    std::ofstream outfile("form_data.txt", std::ios::app);
-    if (outfile.is_open()) {
-        outfile << "Name: " << name << ", Age: " << age << std::endl;
-        outfile.close();
-    } else {
-        std::cerr << "Error opening file to save data." << std::endl;
-    }
 }
 
 // Function to extract values from POST data
@@ -97,18 +89,6 @@ std::string RequestHandler::extract_value(const std::string &data, const std::st
         return data.substr(start_pos, end_pos - start_pos);
     }
     return "";
-}
-
-// Function to read the content of a file
-std::string RequestHandler::get_file_content(const std::string &file_path) {
-    std::ifstream file(file_path);
-    if (!file) {
-        return ""; // Return empty if file not found
-    }
-
-    std::ostringstream buffer;
-    buffer << file.rdbuf();
-    return buffer.str();
 }
 
 // Function to generate HTTP response
