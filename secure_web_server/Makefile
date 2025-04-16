@@ -5,6 +5,7 @@ SRC_DIR = src
 OBJ_DIR = obj
 INCLUDE_DIR = include
 
+# List all source files, including log.cpp
 SRCS = $(wildcard $(SRC_DIR)/*.cpp)
 OBJS = $(patsubst $(SRC_DIR)/%.cpp, $(OBJ_DIR)/%.o, $(SRCS))
 

@@ -1,58 +1,81 @@
 #include "../include/input_validation.h"
 #include <regex>
 #include <iostream>
+#include <unordered_map>
+#include <exception>  // For exception handling
 
 bool InputValidation::validate_name(const std::string &name) {
-    const int MAX_NAME_LENGTH = 50;
-    if (name.empty() || name.length() > MAX_NAME_LENGTH) {
-        return false;  // Invalid if name is too long or empty
-    }
+    try {
+        const int MAX_NAME_LENGTH = 50;
+        if (name.empty() || name.length() > MAX_NAME_LENGTH) {
+            std::cerr << "Error: Name is too long or empty." << std::endl;
+            return false;  // Invalid if name is too long or empty
+        }
 
-    // Allow HTML entities like "&lt;" and "&gt;"
-    std::regex name_pattern("^[A-Za-z&;#]+$");  // Only letters and allowed HTML entities
-    if (!std::regex_match(name, name_pattern)) {
-        std::cerr << "Name can only contain letters and spaces." << std::endl;
+        // Allow letters, spaces, hyphens, and apostrophes
+        std::regex name_pattern("^[A-Za-zÀ-ÿ'\\- ]+$");  // Includes accented characters, hyphens, and apostrophes
+        if (!std::regex_match(name, name_pattern)) {
+            std::cerr << "Error: Name can only contain letters, spaces, hyphens, and apostrophes." << std::endl;
+            return false;
+        }
+
+        return true;
+    } catch (const std::exception &e) {
+        std::cerr << "Exception in validate_name: " << e.what() << std::endl;
         return false;
     }
-
-    return true;
 }
 
 bool InputValidation::validate_age(const std::string &age) {
-    if (age.empty()) {
-        std::cerr << "Age cannot be empty." << std::endl;
+    try {
+        if (age.empty()) {
+            std::cerr << "Error: Age cannot be empty." << std::endl;
+            return false;
+        }
+
+        std::regex age_pattern("^\\d+$");  // Only digits are allowed
+        if (!std::regex_match(age, age_pattern)) {
+            std::cerr << "Error: Age must be a valid number." << std::endl;
+            return false;
+        }
+
+        try {
+            int age_num = std::stoi(age);
+            if (age_num <= 0 || age_num > 120) {
+                std::cerr << "Error: Age must be between 1 and 120." << std::endl;
+                return false;
+            }
+        } catch (const std::exception &e) {
+            std::cerr << "Invalid age value: " << e.what() << std::endl;
+            return false;
+        }
+
+        return true;
+    } catch (const std::exception &e) {
+        std::cerr << "Exception in validate_age: " << e.what() << std::endl;
         return false;
     }
-
-    std::regex age_pattern("^\\d+$");  // Only digits are allowed
-    if (!std::regex_match(age, age_pattern)) {
-        std::cerr << "Age must be a valid number." << std::endl;
-        return false;
-    }
-
-    int age_num = std::stoi(age);
-    if (age_num <= 0 || age_num > 120) {
-        std::cerr << "Age must be between 1 and 120." << std::endl;
-        return false;
-    }
-
-    return true;
 }
 
 std::string InputValidation::sanitize_input(const std::string &input) {
-    std::string sanitized = input;
-    size_t pos;
-    while ((pos = sanitized.find("<")) != std::string::npos) {
-        sanitized.replace(pos, 1, "&lt;");
+    try {
+        // Map of special characters to their corresponding HTML entities
+        std::unordered_map<char, std::string> entity_map = {
+            {'<', "&lt;"}, {'>', "&gt;"}, {'\"', "&quot;"}, {'\'', "&apos;"}, {'&', "&amp;"}
+        };
+
+        std::string sanitized = input;
+        // Iterate over each character in the map and replace occurrences in the input string
+        for (auto &entry : entity_map) {
+            size_t pos = 0;
+            while ((pos = sanitized.find(entry.first, pos)) != std::string::npos) {
+                sanitized.replace(pos, 1, entry.second);
+                pos += entry.second.length();  // Move past the inserted HTML entity
+            }
+        }
+        return sanitized;
+    } catch (const std::exception &e) {
+        std::cerr << "Exception in sanitize_input: " << e.what() << std::endl;
+        return "";  // Return an empty string if an error occurs during sanitization
     }
-    while ((pos = sanitized.find(">")) != std::string::npos) {
-        sanitized.replace(pos, 1, "&gt;");
-    }
-    while ((pos = sanitized.find("\"")) != std::string::npos) {
-        sanitized.replace(pos, 1, "&quot;");
-    }
-    while ((pos = sanitized.find("\'")) != std::string::npos) {
-        sanitized.replace(pos, 1, "&apos;");
-    }
-    return sanitized;
 }
