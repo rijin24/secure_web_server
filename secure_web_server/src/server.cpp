@@ -7,6 +7,7 @@
 #include <sys/socket.h>
 #include "request_handler.h"
 #include "../include/log.h"  // Include the logging functionality
+#include <memory>  // For smart pointers
 
 // Constructor for Server class
 /**
@@ -25,18 +26,17 @@ Server::Server(int port) : port(port) {}
  * @return nullptr After handling the client request, the function returns nullptr.
  */
 void* Server::handle_client(void* arg) {
-    // Cast the argument to client socket pointer and delete it after use
-    int client_socket = *((int*)arg);
-    delete (int*)arg;  // Clean up the client socket pointer
+    // Use a unique_ptr to manage the client socket
+    auto client_socket_ptr = std::unique_ptr<int>(reinterpret_cast<int*>(arg));
 
     char buffer[4096] = {0};  // Buffer to store the incoming data from the client
 
     // Read data from the client socket
-    ssize_t bytes_read = read(client_socket, buffer, sizeof(buffer));
+    ssize_t bytes_read = read(*client_socket_ptr, buffer, sizeof(buffer));
     if (bytes_read < 0) {
         Logger::log_error("Error reading from client socket.");
         std::cerr << "Error reading from client socket." << std::endl;
-        close(client_socket);  // Close socket on error
+        close(*client_socket_ptr);  // Close socket on error
         return nullptr;
     }
 
@@ -63,7 +63,7 @@ void* Server::handle_client(void* arg) {
         }
 
         // Send the HTTP response back to the client
-        ssize_t bytes_sent = send(client_socket, response.c_str(), response.size(), 0);
+        ssize_t bytes_sent = send(*client_socket_ptr, response.c_str(), response.size(), 0);
         if (bytes_sent < 0) {
             Logger::log_error("Error sending response to client.");
             std::cerr << "Error sending response to client." << std::endl;
@@ -77,11 +77,11 @@ void* Server::handle_client(void* arg) {
         response = "HTTP/1.1 500 Internal Server Error\r\nContent-Type: text/html\r\n\r\n"
                    "<html><body><h1>Internal Server Error</h1></body></html>";
         Logger::log_info("HTTP Response: HTTP/1.1 500 Internal Server Error");
-        send(client_socket, response.c_str(), response.size(), 0);
+        send(*client_socket_ptr, response.c_str(), response.size(), 0);
     }
 
     // Close the client socket after processing the request
-    close(client_socket);
+    close(*client_socket_ptr);
     return nullptr;
 }
 
@@ -135,14 +135,13 @@ void Server::start() {
             continue;  // Continue accepting other connections if one fails
         }
 
-        // Allocate memory for the client socket and create a new thread
-        int* client_socket_ptr = new int(client_socket);
+        // Create a unique_ptr for the client socket and create a new thread
+        auto client_socket_ptr = std::make_unique<int>(client_socket);
 
         pthread_t client_thread;
-        if (pthread_create(&client_thread, nullptr, handle_client, client_socket_ptr) != 0) {
+        if (pthread_create(&client_thread, nullptr, handle_client, client_socket_ptr.release()) != 0) {
             Logger::log_error("Failed to create thread: " + std::string(strerror(errno)));
             std::cerr << "Failed to create thread: " << strerror(errno) << std::endl;
-            delete client_socket_ptr;  // Clean up the client socket pointer
         } else {
             pthread_detach(client_thread);  // Detach the thread to automatically clean up
         }
