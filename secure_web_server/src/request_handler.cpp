@@ -93,11 +93,45 @@ std::string RequestHandler::handle_post_request(const std::string &request) {
         Logger::log_info("Data saved successfully: Name=" + name + ", Age=" + age);
 
         // If validation passed, process and respond
-        std::string response = "HTTP/1.1 200 OK\r\n";
-        response += "Content-Type: text/html\r\n";
-        response += "\r\n";
-        response += "<html><body><h1>Form Submitted Successfully!</h1>";
-        response += "<p>Data received: Name = " + name + ", Age = " + age + "</p></body></html>";
+std::string response = "HTTP/1.1 200 OK\r\n";
+response += "Content-Type: text/html\r\n\r\n";
+response += R"(
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Submission Success</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(to right, #16a085, #2ecc71);
+            color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .message-box {
+            background-color: rgba(0, 0, 0, 0.6);
+            padding: 40px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+        }
+        h1 {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class='message-box'>
+        <h1>Form Submitted Successfully!</h1>
+        <p>Data received: Name = )" + name + R"(, Age = )" + age + R"(</p>
+    </div>
+</body>
+</html>
+)";
+
 
         return response;
     } catch (const std::exception &e) {
