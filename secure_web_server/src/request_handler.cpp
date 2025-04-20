@@ -74,15 +74,13 @@ std::string RequestHandler::handle_post_request(const std::string &request) {
         if (!InputValidation::validate_name(name)) {
             // Log invalid name error
             Logger::log_warning("Invalid Name: " + name);
-            return "HTTP/1.1 400 Bad Request\r\nContent-Type: text/html\r\n\r\n"
-                   "<html><body><h1>Invalid Name</h1><p>The name entered is invalid.</p></body></html>";
+            return generate_http_response_with_error("Invalid Name", "The name entered is invalid.");
         }
 
         if (!InputValidation::validate_age(age)) {
             // Log invalid age error
             Logger::log_warning("Invalid Age: " + age);
-            return "HTTP/1.1 400 Bad Request\r\nContent-Type: text/html\r\n\r\n"
-                   "<html><body><h1>Invalid Age</h1><p>The age entered is invalid.</p></body></html>";
+            return generate_http_response_with_error("Invalid Age", "The age entered is invalid.");
         }
 
         // Use smart pointer for FileHandler to save the data
@@ -93,52 +91,11 @@ std::string RequestHandler::handle_post_request(const std::string &request) {
         Logger::log_info("Data saved successfully: Name=" + name + ", Age=" + age);
 
         // If validation passed, process and respond
-std::string response = "HTTP/1.1 200 OK\r\n";
-response += "Content-Type: text/html\r\n\r\n";
-response += R"(
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Submission Success</title>
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(to right, #16a085, #2ecc71);
-            color: #ffffff;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-        .message-box {
-            background-color: rgba(0, 0, 0, 0.6);
-            padding: 40px;
-            border-radius: 10px;
-            text-align: center;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.3);
-        }
-        h1 {
-            margin-bottom: 20px;
-        }
-    </style>
-</head>
-<body>
-    <div class='message-box'>
-        <h1>Form Submitted Successfully!</h1>
-        <p>Data received: Name = )" + name + R"(, Age = )" + age + R"(</p>
-    </div>
-</body>
-</html>
-)";
-
-
-        return response;
+        return generate_http_response_with_success(name, age);
     } catch (const std::exception &e) {
         // Log error during POST request processing
         Logger::log_error("Error processing POST request: " + std::string(e.what()));
-        return "HTTP/1.1 500 Internal Server Error\r\nContent-Type: text/html\r\n\r\n"
-               "<html><body><h1>Internal Server Error</h1><p>There was an error processing your request.</p></body></html>";
+        return generate_http_response_with_error("Internal Server Error", "There was an error processing your request.");
     }
 }
 
@@ -175,7 +132,68 @@ std::string RequestHandler::generate_http_response(const std::string &body, cons
     } catch (const std::exception &e) {
         // Log error during HTTP response generation
         Logger::log_error("Error generating HTTP response: " + std::string(e.what()));
-        return "HTTP/1.1 500 Internal Server Error\r\nContent-Type: text/html\r\n\r\n"
-               "<html><body><h1>Internal Server Error</h1><p>There was an error generating the response.</p></body></html>";
+        return generate_http_response_with_error("Internal Server Error", "There was an error generating the response.");
     }
+}
+
+// Generate a successful response for POST request
+std::string RequestHandler::generate_http_response_with_success(const std::string& name, const std::string& age) {
+    std::string response = "HTTP/1.1 200 OK\r\n";
+    response += "Content-Type: text/html\r\n\r\n";
+    response += R"(
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Submission Success</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(to right, #16a085, #2ecc71);
+            color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .message-box {
+            background-color: rgba(0, 0, 0, 0.6);
+            padding: 40px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+        }
+        h1 {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class='message-box'>
+        <h1>Form Submitted Successfully!</h1>
+        <p>Data received: Name = )" + name + R"(, Age = )" + age + R"(</p>
+    </div>
+</body>
+</html>
+)";
+    return response;
+}
+
+// Generate error response for POST request
+std::string RequestHandler::generate_http_response_with_error(const std::string& error_title, const std::string& error_message) {
+    std::string response = "HTTP/1.1 400 Bad Request\r\n";
+    response += "Content-Type: text/html\r\n\r\n";
+    response += R"(
+<!DOCTYPE html>
+<html>
+<head>
+    <title>)" + error_title + R"(</title>
+</head>
+<body>
+    <h1>)" + error_title + R"(</h1>
+    <p>)" + error_message + R"(</p>
+</body>
+</html>
+)";
+    return response;
 }

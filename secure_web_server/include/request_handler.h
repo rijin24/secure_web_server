@@ -23,6 +23,8 @@ private:
 
     // Saves name and age data to a file
     static void save_to_file(const std::string &name, const std::string &age);
+     static std::string generate_http_response_with_success(const std::string& name, const std::string& age);
+    static std::string generate_http_response_with_error(const std::string& error_title, const std::string& error_message);
 };
 
 #endif
