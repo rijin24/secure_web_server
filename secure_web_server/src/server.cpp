@@ -16,7 +16,7 @@ void* Server::handle_client(void* arg) {
     int client_socket = *((int*)arg);
     delete (int*)arg;
 
-    char buffer[4096] = {0};  
+    char buffer[4096] = {0};
 
     ssize_t bytes_read = read(client_socket, buffer, sizeof(buffer));
     if (bytes_read < 0) {
@@ -39,7 +39,14 @@ void* Server::handle_client(void* arg) {
             response = RequestHandler::handle_request(request);
         }
 
-        Logger::log_response(response);
+        // Extract and log only the status line (e.g., "HTTP/1.1 200 OK")
+        size_t end_of_status_line = response.find("\r\n");
+        if (end_of_status_line != std::string::npos) {
+            Logger::log_info("HTTP Response: " + response.substr(0, end_of_status_line));
+        } else {
+            Logger::log_info("HTTP Response: <Unable to extract status line>");
+        }
+
         ssize_t bytes_sent = send(client_socket, response.c_str(), response.size(), 0);
         if (bytes_sent < 0) {
             Logger::log_error("Error sending response to client.");
@@ -48,8 +55,10 @@ void* Server::handle_client(void* arg) {
     } catch (const std::exception& e) {
         Logger::log_error("Exception while processing the request: " + std::string(e.what()));
         std::cerr << "Exception while processing the request: " << e.what() << std::endl;
+
         response = "HTTP/1.1 500 Internal Server Error\r\nContent-Type: text/html\r\n\r\n"
                    "<html><body><h1>Internal Server Error</h1></body></html>";
+        Logger::log_info("HTTP Response: HTTP/1.1 500 Internal Server Error");
         send(client_socket, response.c_str(), response.size(), 0);
     }
 
