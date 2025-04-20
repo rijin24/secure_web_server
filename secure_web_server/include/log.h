@@ -3,6 +3,7 @@
 
 #include <string>
 #include <memory>  // For std::unique_ptr
+#include <vector>  // For std::vector
 
 // ILogOutput interface
 class ILogOutput {
@@ -21,8 +22,8 @@ public:
         DEBUG
     };
 
-    // Method to initialize logger with specific output
-    static void initialize(std::unique_ptr<ILogOutput> output);
+    // Method to initialize logger with specific outputs (multiple outputs)
+    static void initialize(std::vector<std::unique_ptr<ILogOutput>> outputs);
 
     static void log_request(const std::string &request);
     static void log_response(const std::string &response);
@@ -33,7 +34,7 @@ public:
 
 private:
     static void log(const std::string &message, LogLevel level);
-    static std::unique_ptr<ILogOutput> log_output;  // Log output interface pointer
+    static std::vector<std::unique_ptr<ILogOutput>> log_outputs;  // Vector of log output interfaces
 };
 
-#endif // LOG_H
+#endif 

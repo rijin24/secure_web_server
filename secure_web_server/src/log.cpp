@@ -1,13 +1,13 @@
 #include "log.h"
 #include <iostream>
-#include <memory>  // For std::unique_ptr
+#include <memory>  // For std::unique_ptr>
 
-// Static pointer to the ILogOutput interface
-std::unique_ptr<ILogOutput> Logger::log_output = nullptr;
+// Static vector to hold multiple ILogOutput interfaces
+std::vector<std::unique_ptr<ILogOutput>> Logger::log_outputs;
 
-// Initialize the logger with specific output
-void Logger::initialize(std::unique_ptr<ILogOutput> output) {
-    log_output = std::move(output);
+void Logger::initialize(std::vector<std::unique_ptr<ILogOutput>> outputs) {
+    // Move the passed vector into the log_outputs static member
+    log_outputs = std::move(outputs);
 }
 
 // Implement log_info
@@ -15,23 +15,22 @@ void Logger::log_info(const std::string &info_message) {
     log(info_message, LogLevel::INFO);
 }
 
-// Implement other log levels similarly
+// Implement log_request
 void Logger::log_request(const std::string &request) {
     log(request, LogLevel::INFO);  
 }
 
-void Logger::log_response(const std::string &response) {
-    log(response, LogLevel::INFO);
-}
-
+// Implement log_error
 void Logger::log_error(const std::string &error_message) {
     log(error_message, LogLevel::ERROR);
 }
 
+// Implement log_warning
 void Logger::log_warning(const std::string &warning_message) {
     log(warning_message, LogLevel::WARNING);
 }
 
+// Implement log_debug
 void Logger::log_debug(const std::string &debug_message) {
     log(debug_message, LogLevel::DEBUG);
 }
@@ -54,7 +53,8 @@ void Logger::log(const std::string &message, LogLevel level) {
             break;
     }
 
-    if (log_output) {
-        log_output->output_log(level_str + " " + message, level_str);  // Use the output interface
+    // Iterate over all log outputs and log the message
+    for (auto& output : log_outputs) {
+        output->output_log(level_str + " " + message, level_str);  // Use the output interface
     }
 }
