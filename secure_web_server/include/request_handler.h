@@ -18,8 +18,6 @@ private:
     // Generates an HTTP response with the given body and content type
     static std::string generate_http_response(const std::string &body, const std::string &content_type);
 
-    // Extracts value associated with a key from POST data
-    static std::string extract_value(const std::string &data, const std::string &key);
 
     // Saves name and age data to a file
     static void save_to_file(const std::string &name, const std::string &age);

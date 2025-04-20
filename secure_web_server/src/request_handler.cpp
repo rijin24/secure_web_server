@@ -2,124 +2,88 @@
 #include <sstream>
 #include <iostream>
 #include <string>
-#include "../include/input_validation.h"  // Include input validation logic
-#include "../include/file_handler.h"  // Include FileHandler class
-#include <memory>  // Include for smart pointers
-#include <exception>  // For exception handling
-#include "../include/log.h"  // Include the logging functionality
+#include <memory>
+#include <exception>
 
-// Function to handle GET and POST requests
+#include "../include/input_validation.h"   // For sanitization and validation
+#include "../include/file_handler.h"       // For saving to file
+#include "../include/log.h"                // Logging utility
+#include "../include/utility.h"            // Correct Utility namespace with extract_value
+
+using namespace Utility;  // Use Utility::extract_value directly
+
+// Handle GET and POST requests
 std::string RequestHandler::handle_request(const std::string &request) {
     try {
         std::istringstream request_stream(request);
         std::string method, path, http_version;
 
         request_stream >> method >> path >> http_version;
+        Logger::log_request(request);  // Audit log
 
-        // Log the incoming request
-        Logger::log_request(request);  // Log the request for auditing
-
-        // Handle POST request separately
         if (method == "POST") {
-            return handle_post_request(request);  // Handle POST request
+            return handle_post_request(request);  // Delegate to POST handler
         }
 
-        // Default to handling GET requests
         if (path == "/") {
-            path = "/index.html";  // Default to index.html if root is requested
+            path = "/index.html";  // Default page
         }
 
-        // Use smart pointer for FileHandler
         std::unique_ptr<FileHandler> file_handler = std::make_unique<FileHandler>();
         std::string file_path = "static" + path;
         std::string content = file_handler->get_file_content(file_path);
 
         if (content.empty()) {
-            // Log missing file error
             Logger::log_error("File not found: " + file_path);
             return generate_http_response("404 Not Found", "text/plain");
         }
 
-        // Log the file served
         Logger::log_debug("Serving file: " + file_path);
         return generate_http_response(content, "text/html");
+
     } catch (const std::exception &e) {
-        // Log error during request handling
         Logger::log_error("Error handling GET/POST request: " + std::string(e.what()));
         return generate_http_response("500 Internal Server Error", "text/plain");
     }
 }
 
-// Handle POST request and sanitize data
+// Handle POST requests
 std::string RequestHandler::handle_post_request(const std::string &request) {
     try {
-        // Extract the data from the POST request
-        std::string data = request.substr(request.find("\r\n\r\n") + 4);  // Form data starts after "\r\n\r\n"
-
-        // Log received POST data for debugging
+        std::string data = request.substr(request.find("\r\n\r\n") + 4);
         Logger::log_debug("Received POST data: " + data);
 
-        // Extract name and age from the POST data
         std::string name = extract_value(data, "name");
         std::string age = extract_value(data, "age");
 
-        // Sanitize inputs before validation
         name = InputValidation::sanitize_input(name);
         age = InputValidation::sanitize_input(age);
 
-        // Log sanitized data
         Logger::log_debug("Sanitized data: name=" + name + ", age=" + age);
 
-        // Validate the input data
         if (!InputValidation::validate_name(name)) {
-            // Log invalid name error
             Logger::log_warning("Invalid Name: " + name);
             return generate_http_response_with_error("Invalid Name", "The name entered is invalid.");
         }
 
         if (!InputValidation::validate_age(age)) {
-            // Log invalid age error
             Logger::log_warning("Invalid Age: " + age);
             return generate_http_response_with_error("Invalid Age", "The age entered is invalid.");
         }
 
-        // Use smart pointer for FileHandler to save the data
         std::unique_ptr<FileHandler> file_handler = std::make_unique<FileHandler>();
         file_handler->save_to_file(name, age);
 
-        // Log success
         Logger::log_info("Data saved successfully: Name=" + name + ", Age=" + age);
-
-        // If validation passed, process and respond
         return generate_http_response_with_success(name, age);
+
     } catch (const std::exception &e) {
-        // Log error during POST request processing
         Logger::log_error("Error processing POST request: " + std::string(e.what()));
         return generate_http_response_with_error("Internal Server Error", "There was an error processing your request.");
     }
 }
 
-// Function to extract values from POST data
-std::string RequestHandler::extract_value(const std::string &data, const std::string &key) {
-    try {
-        size_t start_pos = data.find(key + "=");
-        if (start_pos != std::string::npos) {
-            start_pos += key.length() + 1;
-            size_t end_pos = data.find("&", start_pos);
-            if (end_pos == std::string::npos) {
-                end_pos = data.length();
-            }
-            return data.substr(start_pos, end_pos - start_pos);
-        }
-        return "";
-    } catch (const std::exception &e) {
-        // Log error during value extraction
-        Logger::log_error("Error extracting value for key '" + key + "': " + std::string(e.what()));
-        return "";
-    }
-}
-
-// Function to generate HTTP response
+// Generate generic HTTP response
 std::string RequestHandler::generate_http_response(const std::string &body, const std::string &content_type) {
     try {
         std::ostringstream response;
@@ -130,13 +94,12 @@ std::string RequestHandler::generate_http_response(const std::string &body, cons
         response << body;
         return response.str();
     } catch (const std::exception &e) {
-        // Log error during HTTP response generation
         Logger::log_error("Error generating HTTP response: " + std::string(e.what()));
         return generate_http_response_with_error("Internal Server Error", "There was an error generating the response.");
     }
 }
 
-// Generate a successful response for POST request
+// Generate success HTML response
 std::string RequestHandler::generate_http_response_with_success(const std::string& name, const std::string& age) {
     std::string response = "HTTP/1.1 200 OK\r\n";
     response += "Content-Type: text/html\r\n\r\n";
@@ -179,7 +142,7 @@ std::string RequestHandler::generate_http_response_with_success(const std::strin
     return response;
 }
 
-// Generate error response for POST request
+// Generate error HTML response
 std::string RequestHandler::generate_http_response_with_error(const std::string& error_title, const std::string& error_message) {
     std::string response = "HTTP/1.1 400 Bad Request\r\n";
     response += "Content-Type: text/html\r\n\r\n";
