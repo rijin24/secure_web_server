@@ -11,17 +11,27 @@ OBJS = $(patsubst $(SRC_DIR)/%.cpp, $(OBJ_DIR)/%.o, $(SRCS))
 
 TARGET = server
 
+# Default target
 all: $(TARGET)
 
 $(TARGET): $(OBJS)
 	$(CXX) $(CXXFLAGS) -o $@ $(OBJS)
-	@echo "Linking with the following object files: $(OBJS)"  # Debugging step
 
+# Compile source files to object files
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp | $(OBJ_DIR)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
+# Create the object directory if it doesn't exist
 $(OBJ_DIR):
 	mkdir -p $(OBJ_DIR)
 
+# Clean up build files
+.PHONY: clean
 clean:
 	rm -rf $(OBJ_DIR) $(TARGET)
+
+# Automatically generate dependencies for header files
+$(OBJ_DIR)/%.d: $(SRC_DIR)/%.cpp | $(OBJ_DIR)
+	$(CXX) $(CXXFLAGS) -M $< > $@
+
+-include $(OBJS:.o=.d)

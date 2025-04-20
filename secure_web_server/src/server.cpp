@@ -6,21 +6,22 @@
 #include <pthread.h>
 #include <sys/socket.h>
 #include "request_handler.h"
-#include "../include/log.h"  // Include the logging functionality
+#include "../include/log.h"
 #include <memory>  // For smart pointers
+#include "../include/socket_manager.h"
 
 // Constructor for Server class
 /**
- * Constructor for initializing the server with the given port.
- * 
+ * Initializes the server with the given port and creates a SocketManager instance.
+ *
  * @param port The port number the server will listen on.
  */
-Server::Server(int port) : port(port) {}
+Server::Server(int port) 
+    : port(port), socket_manager(std::make_unique<SocketManager>()) {}
 
 /**
  * Thread function to handle client requests.
- * This function is executed by a separate thread for each client to process
- * incoming requests and send the response.
+ * This function processes incoming requests and sends the response.
  * 
  * @param arg A pointer to the client socket passed when creating the thread.
  * @return nullptr After handling the client request, the function returns nullptr.
@@ -28,8 +29,7 @@ Server::Server(int port) : port(port) {}
 void* Server::handle_client(void* arg) {
     // Use a unique_ptr to manage the client socket
     auto client_socket_ptr = std::unique_ptr<int>(reinterpret_cast<int*>(arg));
-
-    char buffer[4096] = {0};  // Buffer to store the incoming data from the client
+    char buffer[4096] = {0};  // Buffer to store incoming data from the client
 
     // Read data from the client socket
     ssize_t bytes_read = read(*client_socket_ptr, buffer, sizeof(buffer));
@@ -40,7 +40,7 @@ void* Server::handle_client(void* arg) {
         return nullptr;
     }
 
-    std::string request(buffer);  // Convert the buffer into a string for easier processing
+    std::string request(buffer);  // Convert buffer into a string for easier processing
     Logger::log_request(request);  // Log the incoming request
 
     std::string response;
@@ -51,7 +51,7 @@ void* Server::handle_client(void* arg) {
             response = RequestHandler::handle_post_request(request);  // Handle POST request
         } else {
             Logger::log_info("GET/Other request received.");
-            response = RequestHandler::handle_request(request);  // Handle GET or other types of requests
+            response = RequestHandler::handle_request(request);  // Handle GET or other requests
         }
 
         // Extract and log the HTTP status line (e.g., "HTTP/1.1 200 OK")
@@ -90,33 +90,18 @@ void* Server::handle_client(void* arg) {
  * and creates a new thread for each incoming client connection.
  */
 void Server::start() {
-    // Create a server socket
-    int server_socket = socket(AF_INET, SOCK_STREAM, 0);
-    if (server_socket < 0) {
-        Logger::log_error("Failed to create socket.");
-        std::cerr << "Failed to create socket." << std::endl;
-        exit(1);  // Exit if socket creation fails
-    }
-
-    // Configure the server address structure
-    sockaddr_in server_addr{};
-    server_addr.sin_family = AF_INET;
-    server_addr.sin_addr.s_addr = INADDR_ANY;  // Bind to any available network interface
-    server_addr.sin_port = htons(port);  // Set the server port
-
+    // Create a server socket using SocketManager to handle socket creation
+    int server_socket = socket_manager->create_socket();
+    
     // Bind the socket to the server address
-    if (bind(server_socket, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
-        Logger::log_error("Bind failed: " + std::string(strerror(errno)));
-        std::cerr << "Bind failed: " << strerror(errno) << std::endl;
-        close(server_socket);
+    if (!socket_manager->bind_socket(server_socket, port)) {
+        std::cerr << "Failed to bind socket" << std::endl;
         exit(1);  // Exit if bind fails
     }
 
     // Start listening for incoming connections
-    if (listen(server_socket, 10) < 0) {
-        Logger::log_error("Failed to listen: " + std::string(strerror(errno)));
-        std::cerr << "Failed to listen: " << strerror(errno) << std::endl;
-        close(server_socket);
+    if (!socket_manager->listen_socket(server_socket)) {
+        std::cerr << "Failed to listen" << std::endl;
         exit(1);  // Exit if listening fails
     }
 
@@ -127,11 +112,10 @@ void Server::start() {
         struct sockaddr_in client_addr;
         socklen_t client_len = sizeof(client_addr);
 
-        // Accept a new client connection
-        int client_socket = accept(server_socket, (struct sockaddr*)&client_addr, &client_len);
+        // Accept a new client connection using SocketManager
+        int client_socket = socket_manager->accept_connection(server_socket, client_addr, client_len);
         if (client_socket < 0) {
-            Logger::log_error("Failed to accept connection: " + std::string(strerror(errno)));
-            std::cerr << "Failed to accept connection: " << strerror(errno) << std::endl;
+            Logger::log_error("Failed to accept connection.");
             continue;  // Continue accepting other connections if one fails
         }
 
@@ -140,8 +124,8 @@ void Server::start() {
 
         pthread_t client_thread;
         if (pthread_create(&client_thread, nullptr, handle_client, client_socket_ptr.release()) != 0) {
-            Logger::log_error("Failed to create thread: " + std::string(strerror(errno)));
-            std::cerr << "Failed to create thread: " << strerror(errno) << std::endl;
+            Logger::log_error("Failed to create thread.");
+            std::cerr << "Failed to create thread" << std::endl;
         } else {
             pthread_detach(client_thread);  // Detach the thread to automatically clean up
         }

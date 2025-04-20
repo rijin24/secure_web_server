@@ -5,7 +5,7 @@
 
 class ILogOutput {
 public:
-    virtual void write(const std::string& message) = 0;
+    virtual void output_log(const std::string& message, const std::string& level) = 0;
     virtual ~ILogOutput() = default;
 };
 
