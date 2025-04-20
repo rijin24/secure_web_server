@@ -15,14 +15,11 @@ private:
     // Reads file content
     static std::string get_file_content(const std::string &file_path);
 
-    // Generates an HTTP response with the given body and content type
-    static std::string generate_http_response(const std::string &body, const std::string &content_type);
-
+    
 
     // Saves name and age data to a file
     static void save_to_file(const std::string &name, const std::string &age);
-     static std::string generate_http_response_with_success(const std::string& name, const std::string& age);
-    static std::string generate_http_response_with_error(const std::string& error_title, const std::string& error_message);
+     
 };
 
 #endif
