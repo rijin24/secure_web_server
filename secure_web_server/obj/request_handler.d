@@ -150,4 +150,4 @@ request_handler.o: src/request_handler.cpp /usr/include/stdc-predef.h \
  /usr/include/c++/13/bits/stl_vector.h \
  /usr/include/c++/13/bits/stl_bvector.h \
  /usr/include/c++/13/bits/vector.tcc src/../include/utility.h \
- src/../include/response_generator.h
+ src/../include/response_generator.h src/../include/server_utils.h

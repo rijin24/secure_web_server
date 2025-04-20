@@ -1,8 +1,12 @@
-#include "server_utils.h"
 #include <iostream>
-#include <unistd.h>
 #include <sys/resource.h>
+#include <string>
+#include <algorithm>
+#include <filesystem>
 #include "../include/log.h"
+
+namespace fs = std::filesystem;
+
 
 // Function to apply resource limits to avoid excessive resource usage
 void applyResourceLimits() {
@@ -27,13 +31,31 @@ void applyResourceLimits() {
     }
 }
 
-// Function to validate file paths and ensure only valid files can be accessed
 bool isValidFilePath(const std::string& filepath) {
-    if (filepath.find("/static") != std::string::npos && filepath.find("..") == std::string::npos) {
-        return true;
+    // 1. Ensure the path starts with "/static" to limit access to the static folder
+    if (filepath.find("/static") != 0) {
+        Logger::log_warning("Blocked access to non-static path: " + filepath);
+        return false;
     }
 
-    // Log a warning if an invalid path is detected
-    Logger::log_warning("Blocked access to non-static path: " + filepath);
-    return false;
+    // 2. Sanitize: Remove any instances of "../" from the file path (directory traversal attempts)
+    std::string sanitized_path = filepath;
+    size_t pos = sanitized_path.find("../");
+    while (pos != std::string::npos) {
+        sanitized_path.erase(pos, 3);  // Remove "../" (attempt at directory traversal)
+        pos = sanitized_path.find("../");
+    }
+
+    // 3. Normalize the path (resolves symbolic links, relative paths, etc.)
+    fs::path full_path = fs::canonical(fs::path(sanitized_path));
+
+    // 4. Ensure the full path still lies within the allowed "static" directory
+    if (full_path.string().find(fs::canonical("static").string()) != 0) {
+        Logger::log_warning("Directory traversal attempt detected: " + filepath);
+        return false;
+    }
+
+    // If all checks passed, the file path is valid
+    return true;
 }
+

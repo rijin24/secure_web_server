@@ -20,14 +20,6 @@ int main() {
     // Apply resource limits to prevent excessive resource usage by the server.
     applyResourceLimits();
 
-    // Test a specific file path before the server starts to ensure it's valid.
-    std::string testFilePath = "/static/index.html"; 
-    if (!isValidFilePath(testFilePath)) {
-        // Log and exit if the file path is invalid
-        Logger::log_error("Invalid file path access attempt: " + testFilePath);
-        return 1; // Exit if invalid path
-    }
-
     // Print a message to indicate the server is starting
     std::cout << "Server started on port 8080..." << std::endl;
 

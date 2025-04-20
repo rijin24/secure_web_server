@@ -10,6 +10,7 @@
 #include "../include/log.h"                // Logging utility
 #include "../include/utility.h"            // For extract_value
 #include "../include/response_generator.h" // For HTTP response generation
+#include "../include/server_utils.h"       // For isValidFilePath()
 
 using namespace Utility;  // Use Utility::extract_value directly
 
@@ -30,8 +31,18 @@ std::string RequestHandler::handle_request(const std::string &request) {
             path = "/index.html";  // Default page
         }
 
-        std::unique_ptr<FileHandler> file_handler = std::make_unique<FileHandler>();
         std::string file_path = "static" + path;
+
+        // Validate file path
+       if (file_path.find("static") != std::string::npos && file_path.find("..") == std::string::npos) 
+    Logger::log_debug("Valid file path: " + file_path);
+else {
+    Logger::log_warning("Blocked access to non-static path: " + file_path);
+    return ResponseGenerator::generate_http_response("403 Forbidden", "text/plain");
+}
+
+
+        std::unique_ptr<FileHandler> file_handler = std::make_unique<FileHandler>();
         std::string content = file_handler->get_file_content(file_path);
 
         if (content.empty()) {
